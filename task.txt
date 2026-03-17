@@ -1,0 +1,176 @@
+Petunjuk Pengerjaan Case Project Machine Learning
+1. Tujuan Tugas
+Mahasiswa diminta untuk membangun sebuah model Machine Learning menggunakan salah satu pendekatan berikut:
+
+Regresi
+
+Klasifikasi
+
+Clustering
+
+Model yang dibangun harus melalui tahapan proses Machine Learning yang lengkap, mulai dari pemahaman data hingga evaluasi model.
+
+
+2. Ketentuan Model
+Gunakan minimal 3 algoritma Machine Learning yang berbeda untuk membandingkan performa model.
+
+Target performa model:
+
+Minimal 1 algoritma harus mencapai akurasi ≥ 95%
+
+Minimal 2 algoritma lainnya harus mencapai akurasi ≥ 85%
+
+Lakukan eksperimen pembagian data (data splitting) dengan minimal 3 kombinasi rasio, misalnya:
+
+70% training : 30% testing
+
+80% training : 20% testing
+
+90% training : 10% testing
+
+Setiap model harus menggunakan hyperparameter tuning untuk meningkatkan performa model, misalnya menggunakan:
+
+Grid Search
+
+Random Search
+
+Manual parameter tuning
+
+Lakukan evaluasi model menggunakan metrik yang sesuai dengan jenis model:
+
+Klasifikasi: Accuracy, Precision, Recall, F1-score, Confusion Matrix
+
+Regresi: MAE, MSE, RMSE, R² Score
+
+Clustering: Silhouette Score, Davies-Bouldin Index, atau metode evaluasi lain yang relevan
+
+
+3. Tahapan Pengerjaan yang Harus Dilakukan
+Dalam project ini, mahasiswa wajib melalui tahapan berikut:
+
+1. Data Understanding
+Menjelaskan sumber dataset
+
+Menjelaskan fitur/variabel dalam dataset
+
+Menampilkan statistik deskriptif data
+
+
+2. Data Preprocessing
+Melakukan proses pembersihan dan persiapan data, seperti:
+
+Mengatasi missing values
+
+Menghapus atau menangani outlier
+
+Encoding data kategorikal
+
+Normalisasi atau standarisasi data jika diperlukan
+
+
+3. Exploratory Data Analysis (EDA)
+Melakukan eksplorasi data menggunakan visualisasi, seperti:
+
+Distribusi data
+
+Korelasi antar variabel
+
+Insight penting dari dataset
+
+
+4. Data Splitting
+Membagi dataset menjadi training data dan testing data dengan minimal 3 variasi pembagian.
+
+
+5. Model Building
+Membangun model menggunakan minimal 3 algoritma berbeda
+
+Contoh algoritma yang dapat digunakan:
+
+Logistic Regression
+
+Decision Tree
+
+Random Forest
+
+KNN
+
+SVM
+
+Naive Bayes
+
+Linear Regression
+
+K-Means
+
+dan algoritma lain yang relevan
+
+
+6. Hyperparameter Tuning
+Melakukan tuning parameter untuk meningkatkan performa model.
+
+Contoh parameter yang bisa dituning:
+
+n_neighbors pada KNN
+
+max_depth pada Decision Tree
+
+n_estimators pada Random Forest
+
+C dan kernel pada SVM
+
+
+7. Model Evaluation
+Melakukan evaluasi terhadap setiap model dan membandingkan hasil performa dari ketiga algoritma yang digunakan.
+
+
+8. Model Comparison
+Membuat tabel atau grafik yang membandingkan:
+
+Akurasi model
+
+Performa tiap algoritma
+
+Hasil dari setiap data splitting
+
+
+4. Output yang Harus Dikumpulkan
+Mahasiswa wajib mengumpulkan:
+
+Notebook Project (Python / Jupyter Notebook / Google Colab)
+
+Laporan Project (PDF / Word) yang berisi:
+
+Latar belakang
+
+Deskripsi dataset
+
+Tahapan preprocessing
+
+Exploratory Data Analysis
+
+Model building
+
+Hyperparameter tuning
+
+Evaluasi model
+
+Perbandingan hasil model
+
+Kesimpulan
+
+
+5. Kriteria Penilaian
+Penilaian akan didasarkan pada:
+
+Kualitas preprocessing data
+
+Kelengkapan tahapan Machine Learning
+
+Penggunaan beberapa algoritma
+
+Implementasi hyperparameter tuning
+
+Analisis dan interpretasi hasil
+
+Kualitas laporan dan visualisasi
