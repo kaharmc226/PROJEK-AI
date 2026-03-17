@@ -1,0 +1,2 @@
+Klasifiasi kualitas dan nutrisi tanah menggunakan Machine Learning, untuk membantu decision making dalam agrikultur
+KNN, Random Forest, SVM
