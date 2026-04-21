@@ -42,7 +42,7 @@
 
         // Basic client-side validation
         if (isNaN(payload.age) || isNaN(payload.bmi) || isNaN(payload.children)) {
-            alert("Please fill in all numeric fields.");
+            alert("Harap isi semua kolom numerik.");
             return;
         }
 
@@ -66,7 +66,7 @@
             renderResult(data, payload);
 
         } catch (err) {
-            alert("Prediction failed: " + err.message);
+            alert("Prediksi gagal: " + err.message);
         } finally {
             submitBtn.classList.remove("loading");
             submitBtn.disabled = false;
@@ -83,11 +83,19 @@
         animateCounter(resultAmount, data.predicted_charges);
 
         // Input summary
+        const sexLabel      = input.sex === "male" ? "Laki-laki" : "Perempuan";
+        const smokerLabel   = input.smoker === "yes" ? "Perokok" : "Bukan Perokok";
+        const childrenLabel = input.children === 1 ? "1 anak" : `${input.children} anak`;
+        const regionMap     = {
+            northeast: "Timur Laut",
+            northwest: "Barat Laut",
+            southeast: "Tenggara",
+            southwest: "Barat Daya",
+        };
         resultSummary.innerHTML =
-            `${capitalize(input.sex)}, Age ${input.age}, BMI ${input.bmi}, ` +
-            `${input.children} child${input.children !== 1 ? "ren" : ""}, ` +
-            `${input.smoker === "yes" ? "Smoker" : "Non-smoker"}, ` +
-            `${capitalize(input.region)}`;
+            `${sexLabel}, Usia ${input.age}, BMI ${input.bmi}, ` +
+            `${childrenLabel}, ${smokerLabel}, ` +
+            `${regionMap[input.region] || capitalize(input.region)}`;
 
         // Warnings
         if (data.warnings && data.warnings.length > 0) {

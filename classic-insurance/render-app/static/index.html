@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Insurance Cost Predictor</title>
-    <meta name="description" content="Predict medical insurance costs using an XGBoost machine learning model. Enter patient data and get instant cost estimates.">
+    <title>Prediksi Biaya Asuransi</title>
+    <meta name="description" content="Prediksi biaya asuransi kesehatan menggunakan model machine learning XGBoost. Masukkan data pasien dan dapatkan estimasi biaya secara instan.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -26,8 +26,8 @@
                     <path d="M2 12l10 5 10-5"/>
                 </svg>
             </div>
-            <h1>Insurance Cost Predictor</h1>
-            <p class="subtitle">XGBoost ML Model · 21 Engineered Features · R² 0.87</p>
+            <h1>Prediksi Biaya Asuransi</h1>
+            <p class="subtitle">Model ML XGBoost · 21 Fitur Rekayasa · R² 0.87</p>
         </header>
 
         <!-- Main Card -->
@@ -36,17 +36,17 @@
                 <div class="form-grid">
                     <!-- Age -->
                     <div class="form-group">
-                        <label for="age">Age</label>
+                        <label for="age">Usia</label>
                         <input type="number" id="age" name="age" min="1" max="120" value="30" required>
-                        <span class="hint">18 – 64 (training range)</span>
+                        <span class="hint">18 – 64 (rentang data latih)</span>
                     </div>
 
                     <!-- Sex -->
                     <div class="form-group">
-                        <label for="sex">Sex</label>
+                        <label for="sex">Jenis Kelamin</label>
                         <select id="sex" name="sex" required>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
+                            <option value="male">Laki-laki</option>
+                            <option value="female">Perempuan</option>
                         </select>
                     </div>
 
@@ -54,40 +54,40 @@
                     <div class="form-group">
                         <label for="bmi">BMI</label>
                         <input type="number" id="bmi" name="bmi" min="1" max="100" step="0.1" value="25.0" required>
-                        <span class="hint">15.96 – 53.13 (training range)</span>
+                        <span class="hint">15.96 – 53.13 (rentang data latih)</span>
                     </div>
 
                     <!-- Children -->
                     <div class="form-group">
-                        <label for="children">Children</label>
+                        <label for="children">Jumlah Anak</label>
                         <input type="number" id="children" name="children" min="0" max="20" value="0" required>
-                        <span class="hint">0 – 5 (training range)</span>
+                        <span class="hint">0 – 5 (rentang data latih)</span>
                     </div>
 
                     <!-- Smoker -->
                     <div class="form-group">
-                        <label>Smoker</label>
+                        <label>Perokok</label>
                         <div class="toggle-group">
-                            <button type="button" class="toggle-btn active" data-value="no" id="smoker-no">No</button>
-                            <button type="button" class="toggle-btn" data-value="yes" id="smoker-yes">Yes</button>
+                            <button type="button" class="toggle-btn active" data-value="no" id="smoker-no">Tidak</button>
+                            <button type="button" class="toggle-btn" data-value="yes" id="smoker-yes">Ya</button>
                         </div>
                         <input type="hidden" id="smoker" name="smoker" value="no">
                     </div>
 
                     <!-- Region -->
                     <div class="form-group">
-                        <label for="region">Region</label>
+                        <label for="region">Wilayah</label>
                         <select id="region" name="region" required>
-                            <option value="northeast">Northeast</option>
-                            <option value="northwest">Northwest</option>
-                            <option value="southeast">Southeast</option>
-                            <option value="southwest">Southwest</option>
+                            <option value="northeast">Timur Laut</option>
+                            <option value="northwest">Barat Laut</option>
+                            <option value="southeast">Tenggara</option>
+                            <option value="southwest">Barat Daya</option>
                         </select>
                     </div>
                 </div>
 
                 <button type="submit" class="submit-btn" id="submit-btn">
-                    <span class="btn-text">Predict Cost</span>
+                    <span class="btn-text">Prediksi Biaya</span>
                     <span class="btn-loader" id="btn-loader"></span>
                 </button>
             </form>
@@ -96,24 +96,24 @@
         <!-- Result Card (hidden by default) -->
         <section class="card result-card hidden" id="result-card">
             <div class="result-header">
-                <h2>Predicted Insurance Cost</h2>
+                <h2>Estimasi Biaya Asuransi</h2>
             </div>
             <div class="result-amount" id="result-amount">$0.00</div>
             <div class="result-input-summary" id="result-input-summary"></div>
 
             <!-- Warnings -->
             <div class="warnings hidden" id="warnings-section">
-                <h3>⚠️ Warnings</h3>
+                <h3>⚠️ Peringatan</h3>
                 <ul id="warnings-list"></ul>
             </div>
 
             <!-- Feature Breakdown -->
             <details class="feature-details">
-                <summary>View Engineered Features (21)</summary>
+                <summary>Lihat Fitur Rekayasa (21)</summary>
                 <div class="feature-table-wrap">
                     <table class="feature-table" id="feature-table">
                         <thead>
-                            <tr><th>Feature</th><th>Value</th></tr>
+                            <tr><th>Fitur</th><th>Nilai</th></tr>
                         </thead>
                         <tbody id="feature-tbody"></tbody>
                     </table>
@@ -123,7 +123,7 @@
 
         <!-- Footer -->
         <footer class="footer">
-            <p>Model: XGBoost Regressor · Dataset: Medical Cost Personal (1,338 rows) · Target: log1p(charges)</p>
+            <p>Model: XGBoost Regressor · Dataset: Medical Cost Personal (1.338 data) · Target: log1p(charges)</p>
         </footer>
     </div>
 

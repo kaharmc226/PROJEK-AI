@@ -68,20 +68,20 @@ def prepare_features(age: int, sex: str, bmi: float,
 
 
 def validate_inputs(age, sex, bmi, children, smoker, region):
-    """Return a list of warning strings for out-of-range or invalid inputs."""
+    """Mengembalikan daftar peringatan untuk input di luar rentang atau tidak valid."""
     warnings = []
     if age < 18 or age > 64:
-        warnings.append(f"Age ({age}) is outside training range [18, 64]")
+        warnings.append(f"Usia ({age}) di luar rentang data latih [18, 64]")
     if bmi < 15.96 or bmi > 53.13:
-        warnings.append(f"BMI ({bmi}) is outside training range [15.96, 53.13]")
+        warnings.append(f"BMI ({bmi}) di luar rentang data latih [15.96, 53.13]")
     if children < 0 or children > 5:
-        warnings.append(f"Children ({children}) is outside training range [0, 5]")
+        warnings.append(f"Jumlah anak ({children}) di luar rentang data latih [0, 5]")
     if sex not in VALID_SEX:
-        warnings.append(f"Sex ('{sex}') must be 'male' or 'female'")
+        warnings.append(f"Jenis kelamin ('{sex}') harus 'male' atau 'female'")
     if smoker not in VALID_SMOKER:
-        warnings.append(f"Smoker ('{smoker}') must be 'yes' or 'no'")
+        warnings.append(f"Status perokok ('{smoker}') harus 'yes' atau 'no'")
     if region not in VALID_REGION:
-        warnings.append(f"Region ('{region}') must be one of: northeast, northwest, southeast, southwest")
+        warnings.append(f"Wilayah ('{region}') harus salah satu dari: northeast, northwest, southeast, southwest")
     return warnings
 
 
