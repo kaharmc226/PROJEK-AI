@@ -205,7 +205,7 @@ Browser Pengguna
 
 Aplikasi telah di-*deploy* dan dapat diakses secara publik melalui tautan berikut:
 
-> 🔗 **URL Aplikasi:** *(akan diisi)*
+> 🔗 **URL Aplikasi:** *https://projek-ai.onrender.com/*
 
 ### Panduan Penggunaan
 
