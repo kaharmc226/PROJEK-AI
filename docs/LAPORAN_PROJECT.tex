@@ -1,0 +1,521 @@
+
+\documentclass[12pt,a4paper]{article}
+
+% ── Packages ──────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[indonesian]{babel}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{caption}
+
+% ── Page style ────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Prediksi Biaya Asuransi Kesehatan}
+\lhead{Laporan Project Machine Learning}
+\cfoot{\thepage}
+
+% ── Hyperref setup ────────────────────────────────────────
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!70!black,
+    urlcolor=blue!70!black,
+    citecolor=blue!70!black,
+}
+
+% ── Title ─────────────────────────────────────────────────
+\title{
+    \vspace{-1cm}
+    \textbf{Laporan Project Machine Learning} \\[0.4cm]
+    \Large Prediksi Biaya Asuransi Kesehatan
+}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{fancy}
+
+% ══════════════════════════════════════════════════════════
+\tableofcontents
+\newpage
+
+% ══════════════════════════════════════════════════════════
+\section{Latar Belakang}
+
+Industri asuransi kesehatan memerlukan model prediktif yang akurat untuk mengestimasi biaya klaim medis setiap individu.  Prediksi biaya yang akurat sangat penting untuk:
+
+\begin{itemize}
+    \item \textbf{Penetapan premi} yang adil dan kompetitif
+    \item \textbf{Manajemen risiko} keuangan perusahaan asuransi
+    \item \textbf{Perencanaan anggaran} kesehatan bagi individu dan organisasi
+    \item \textbf{Identifikasi faktor risiko} utama yang mempengaruhi biaya kesehatan
+\end{itemize}
+
+Beberapa faktor yang diketahui mempengaruhi biaya asuransi kesehatan antara lain usia, indeks massa tubuh (BMI), status merokok, jumlah tanggungan, dan wilayah tempat tinggal. Namun, hubungan antar faktor-faktor ini bersifat \textbf{non-linear} — misalnya, kombinasi antara merokok dan obesitas tidak sekadar penjumlahan risiko, melainkan \textbf{efek multiplikatif} yang sangat signifikan.
+
+Dalam project ini, kami membangun model Machine Learning untuk \textbf{memprediksi biaya tagihan asuransi kesehatan (charges)} menggunakan data demografis dan kesehatan pasien.  Kami menggunakan \textbf{4 algoritma} yang berbeda (Linear Regression, Random Forest, XGBoost, LightGBM) dan membandingkan performanya pada \textbf{3 rasio pembagian data} (70/30, 80/20, 90/10) dengan \textbf{hyperparameter tuning} pada setiap model.
+
+
+% ══════════════════════════════════════════════════════════
+\section{Deskripsi Dataset}
+
+\subsection{Sumber Data}
+
+Dataset yang digunakan adalah \textbf{Medical Cost Personal Dataset} yang tersedia di platform Kaggle:
+\begin{itemize}
+    \item \textbf{URL:} \url{https://www.kaggle.com/datasets/mirichoi0218/insurance}
+    \item \textbf{Jumlah data:} 1.338 baris
+    \item \textbf{Jumlah fitur:} 6 fitur input + 1 target variable
+    \item \textbf{Missing values:} Tidak ada (dataset bersih)
+\end{itemize}
+
+\subsection{Variabel / Fitur Dataset}
+
+\begin{table}[h!]
+\centering
+\caption{Variabel dan fitur dalam dataset}
+\begin{tabular}{clllp{4cm}}
+\toprule
+\textbf{No} & \textbf{Fitur} & \textbf{Tipe} & \textbf{Deskripsi} & \textbf{Rentang} \\
+\midrule
+1 & \texttt{age}      & Integer     & Usia pasien                     & 18 – 64 tahun \\
+2 & \texttt{sex}      & Kategorikal & Jenis kelamin                   & male, female \\
+3 & \texttt{bmi}      & Float       & Body Mass Index                 & 15.96 – 53.13 \\
+4 & \texttt{children} & Integer     & Jumlah anak/tanggungan          & 0 – 5 \\
+5 & \texttt{smoker}   & Kategorikal & Status merokok                  & yes, no \\
+6 & \texttt{region}   & Kategorikal & Wilayah tempat tinggal di AS    & northeast, northwest, southeast, southwest \\
+7 & \texttt{charges}  & Float       & \textbf{Target — Biaya asuransi tahunan (USD)} & \$1.121,87 – \$63.770,43 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Statistik Deskriptif}
+
+\begin{table}[h!]
+\centering
+\caption{Statistik deskriptif fitur numerik}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Statistik} & \textbf{Age} & \textbf{BMI} & \textbf{Children} & \textbf{Charges} \\
+\midrule
+Mean    & 39,21  & 30,66 & 1,09 & \$13.270,42 \\
+Std     & 14,05  & 6,10  & 1,21 & \$12.110,01 \\
+Min     & 18     & 15,96 & 0    & \$1.121,87  \\
+25\%    & 27     & 26,30 & 0    & \$4.740,29  \\
+Median  & 39     & 30,40 & 1    & \$9.382,03  \\
+75\%    & 51     & 34,69 & 2    & \$16.639,91 \\
+Max     & 64     & 53,13 & 5    & \$63.770,43 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% ══════════════════════════════════════════════════════════
+\section{Tahapan Preprocessing}
+
+\subsection{Pengecekan Missing Values}
+Dilakukan pengecekan missing values pada seluruh kolom.  Hasilnya: \textbf{tidak ditemukan missing values} pada dataset ini, sehingga tidak diperlukan proses imputasi.
+
+\subsection{Penanganan Outlier}
+Target variable \texttt{charges} memiliki distribusi \textbf{right-skewed} (miring ke kanan), artinya sebagian kecil pasien memiliki biaya yang sangat tinggi.  Tidak dilakukan penghapusan outlier karena data outlier pada charges merupakan data yang valid — pasien perokok dengan BMI tinggi memang memiliki biaya yang jauh lebih tinggi secara alamiah.
+
+\subsection{Feature Engineering}
+Feature engineering merupakan tahapan krusial dalam project ini.  Dari 6 fitur mentah, kami menciptakan \textbf{21 fitur} untuk menangkap hubungan non-linear:
+
+\subsubsection{Encoding Variabel Kategorikal}
+\begin{itemize}
+    \item \texttt{smoker} dikonversi menjadi \texttt{smoker\_binary} (1 = yes, 0 = no)
+    \item \texttt{sex} dan \texttt{region} di-encode menggunakan \textbf{one-hot encoding} (dengan \texttt{drop\_first=True} untuk menghindari multikolinearitas)
+\end{itemize}
+
+\subsubsection{Fitur Interaksi (Interaction Features)}
+\begin{table}[h!]
+\centering
+\caption{Fitur interaksi yang diciptakan}
+\begin{tabular}{lll}
+\toprule
+\textbf{Fitur Baru} & \textbf{Formula} & \textbf{Alasan} \\
+\midrule
+\texttt{smoker\_bmi}   & smoker\_binary $\times$ bmi & \textbf{Fitur terpenting} — efek multiplikatif \\
+\texttt{smoker\_age}   & smoker\_binary $\times$ age & Perokok lebih tua bayar lebih mahal \\
+\texttt{age\_bmi}      & age $\times$ bmi            & Interaksi usia dan BMI \\
+\texttt{smoker\_obese} & smoker\_binary $\times$ is\_obese & Double risk factor \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Fitur Polinomial}
+\begin{itemize}
+    \item \texttt{age\_sq} = $\text{age}^2$ — Efek non-linear usia terhadap biaya
+    \item \texttt{bmi\_sq} = $\text{bmi}^2$ — Efek non-linear BMI terhadap biaya
+\end{itemize}
+
+\subsubsection{Fitur Kategorikal Biner}
+\begin{itemize}
+    \item \texttt{is\_obese} — bmi $\geq$ 30
+    \item \texttt{is\_overweight} — bmi $\geq$ 25
+    \item \texttt{has\_children} — children $>$ 0
+    \item \texttt{age\_group\_young} — age $<$ 30
+    \item \texttt{age\_group\_mid} — $30 \leq \text{age} < 50$
+    \item \texttt{age\_group\_senior} — age $\geq$ 50
+\end{itemize}
+
+\subsubsection{Transformasi Log}
+\begin{itemize}
+    \item \texttt{log\_bmi} = $\log(1 + \text{bmi})$ — Koreksi skewness pada distribusi BMI
+\end{itemize}
+
+\subsection{Transformasi Target Variable}
+Target \texttt{charges} ditransformasi menggunakan \textbf{log-transform} ($\texttt{np.log1p}$) selama training untuk menangani distribusi yang right-skewed.  Prediksi dikembalikan ke skala asli menggunakan \textbf{inverse transform} ($\texttt{np.expm1}$) saat evaluasi.
+
+\subsection{Ringkasan Preprocessing}
+
+\begin{table}[h!]
+\centering
+\caption{Ringkasan tahapan preprocessing}
+\begin{tabular}{lll}
+\toprule
+\textbf{Tahap} & \textbf{Sebelum} & \textbf{Sesudah} \\
+\midrule
+Jumlah fitur       & 6 (mentah)         & 21 (setelah engineering) \\
+Missing values      & 0                  & 0 \\
+Outlier dihapus     & --                 & Tidak (data valid) \\
+Encoding            & 3 kolom kategorikal & One-hot encoded \\
+Target transform    & Skewed             & Log-transformed \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% ══════════════════════════════════════════════════════════
+\section{Exploratory Data Analysis}
+
+\subsection{Distribusi Target Variable (Charges)}
+Distribusi \texttt{charges} menunjukkan pola \textbf{right-skewed} dengan:
+\begin{itemize}
+    \item Mayoritas pasien memiliki biaya antara \textbf{\$1.000 – \$15.000}
+    \item Sebagian kecil pasien memiliki biaya tinggi hingga \textbf{\$63.770}
+    \item Terdapat gap yang jelas pada distribusi, yang disebabkan oleh perbedaan status merokok
+\end{itemize}
+
+\subsection{Korelasi Antar Variabel}
+Analisis korelasi Pearson menunjukkan fitur-fitur berikut memiliki korelasi tertinggi dengan \texttt{charges}:
+
+\begin{table}[h!]
+\centering
+\caption{Korelasi fitur dengan charges (sebelum dan sesudah feature engineering)}
+\begin{tabular}{lr|lr}
+\toprule
+\multicolumn{2}{c|}{\textbf{Fitur Asli}} & \multicolumn{2}{c}{\textbf{Fitur Engineered}} \\
+\textbf{Fitur} & \textbf{Korelasi} & \textbf{Fitur} & \textbf{Korelasi} \\
+\midrule
+smoker   & 0,787 & smoker\_bmi    & \textbf{0,814} \\
+age      & 0,299 & smoker\_binary & 0,787 \\
+bmi      & 0,198 & smoker\_age    & 0,690 \\
+children & 0,068 & smoker\_obese  & 0,650 \\
+sex      & 0,058 & age            & 0,299 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Insight Penting: Efek Smoker $\times$ BMI}
+Temuan paling penting dari EDA adalah adanya \textbf{tiga ``band'' biaya} yang jelas terlihat:
+\begin{enumerate}
+    \item \textbf{Band bawah (Non-smoker):} Biaya naik secara linear moderat seiring usia, rata-rata ${\sim}\$8.400$
+    \item \textbf{Band tengah (Smoker, BMI rendah):} Biaya lebih tinggi dari non-smoker
+    \item \textbf{Band atas (Smoker, BMI tinggi $\geq$30):} Biaya \textbf{sangat tinggi}, rata-rata ${\sim}\$32.050$
+\end{enumerate}
+
+Ini bukan data leakage — ini mencerminkan \textbf{realitas aktuaria} yang sesungguhnya.
+
+
+% ══════════════════════════════════════════════════════════
+\section{Model Building}
+
+\subsection{Algoritma yang Digunakan}
+Kami menggunakan \textbf{4 algoritma} Machine Learning untuk regresi:
+
+\begin{table}[h!]
+\centering
+\caption{Algoritma yang digunakan}
+\begin{tabular}{clll}
+\toprule
+\textbf{No} & \textbf{Algoritma} & \textbf{Library} & \textbf{Akselerasi} \\
+\midrule
+1 & Linear Regression      & scikit-learn          & CPU \\
+2 & Random Forest Regressor & cuML / scikit-learn  & GPU (cuML) \\
+3 & XGBoost Regressor      & xgboost               & GPU \\
+4 & LightGBM Regressor     & lightgbm              & CPU/GPU \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Data Splitting}
+Dataset dibagi menjadi \textbf{3 variasi rasio} pembagian:
+
+\begin{table}[h!]
+\centering
+\caption{Rasio pembagian data}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Rasio} & \textbf{Training Set} & \textbf{Testing Set} \\
+\midrule
+70/30 & 936 sampel  & 402 sampel \\
+80/20 & 1.070 sampel & 268 sampel \\
+90/10 & 1.204 sampel & 134 sampel \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Semua pembagian menggunakan \texttt{random\_state=42} untuk reprodusibilitas.
+
+\subsection{Pendekatan Training}
+\begin{enumerate}
+    \item Setiap algoritma di-training pada \textbf{ketiga variasi split} secara terpisah
+    \item Target variable ditransformasi menggunakan \textbf{log1p} selama training
+    \item Evaluasi dilakukan pada \textbf{skala asli (USD)} menggunakan inverse transform \textbf{expm1}
+    \item Untuk setiap kombinasi (algoritma $\times$ split $\times$ hyperparameter), model terbaik dipilih berdasarkan \textbf{R\textsuperscript{2} score tertinggi} pada test set
+\end{enumerate}
+
+
+% ══════════════════════════════════════════════════════════
+\section{Hyperparameter Tuning}
+
+\subsection{Metode Tuning}
+Kami menggunakan \textbf{manual parameter tuning} (grid search manual) dimana beberapa kombinasi hyperparameter dicoba untuk setiap algoritma dan split.
+
+\subsection{Parameter yang Dituning}
+
+\textbf{XGBoost Regressor} (model terbaik):
+\begin{table}[h!]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Parameter} & \textbf{Nilai yang Dicoba} \\
+\midrule
+\texttt{n\_estimators}    & 300, 500, 800 \\
+\texttt{learning\_rate}   & 0,01; 0,03; 0,05 \\
+\texttt{max\_depth}       & 4, 5, 6 \\
+\texttt{subsample}        & 0,7; 0,8 \\
+\texttt{colsample\_bytree} & 0,7; 0,8 \\
+\texttt{reg\_lambda}      & 1,0; 1,5; 2,0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Konfigurasi Model Terbaik}
+Model terbaik secara keseluruhan adalah \textbf{XGBoost} dengan konfigurasi:
+
+\begin{table}[h!]
+\centering
+\caption{Konfigurasi optimal XGBoost}
+\begin{tabular}{lr}
+\toprule
+\textbf{Parameter} & \textbf{Nilai Optimal} \\
+\midrule
+\texttt{n\_estimators}    & 800 \\
+\texttt{learning\_rate}   & 0,01 \\
+\texttt{max\_depth}       & 5 \\
+\texttt{subsample}        & 0,8 \\
+\texttt{colsample\_bytree} & 0,8 \\
+\texttt{reg\_lambda}      & 2,0 \\
+\texttt{tree\_method}     & hist (GPU) \\
+\textbf{Split terbaik}    & \textbf{80/20} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% ══════════════════════════════════════════════════════════
+\section{Evaluasi Model}
+
+\subsection{Metrik Evaluasi}
+Untuk model regresi, kami menggunakan 4 metrik evaluasi:
+\begin{itemize}
+    \item \textbf{R\textsuperscript{2} Score} — Proporsi varians yang dapat dijelaskan (0–1)
+    \item \textbf{MAE} — Mean Absolute Error (rata-rata kesalahan absolut dalam USD)
+    \item \textbf{RMSE} — Root Mean Squared Error
+    \item \textbf{MSE} — Mean Squared Error
+\end{itemize}
+
+\subsection{Hasil Model Terbaik}
+
+\begin{table}[h!]
+\centering
+\caption{Performa model terbaik (XGBoost, split 80/20)}
+\begin{tabular}{lr}
+\toprule
+\textbf{Metrik} & \textbf{Nilai} \\
+\midrule
+Model            & XGBoost Regressor \\
+Split            & 80/20 \\
+R\textsuperscript{2} Score & \textbf{0,8802} (88,02\%) \\
+MAE              & \textbf{\$1.912,17} \\
+RMSE             & \textbf{\$4.313,40} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analisis Residual}
+\begin{itemize}
+    \item \textbf{Mean residual:} $\approx$ \$0 — menunjukkan model \textbf{tidak memiliki bias sistematis}
+    \item \textbf{Distribusi residual:} Mendekati distribusi normal
+    \item \textbf{Residual vs Predicted:} Tidak menunjukkan pola tertentu — asumsi homoskedastisitas terpenuhi
+    \item \textbf{Spread lebih besar pada biaya tinggi} — prediksi untuk perokok lebih bervariasi
+\end{itemize}
+
+\subsection{Feature Importance}
+Fitur-fitur terpenting berdasarkan XGBoost feature importance:
+
+\begin{table}[h!]
+\centering
+\caption{Feature importance XGBoost}
+\begin{tabular}{clll}
+\toprule
+\textbf{Rank} & \textbf{Fitur} & \textbf{Importance} & \textbf{Kategori} \\
+\midrule
+1 & \texttt{smoker\_bmi}   & Tertinggi      & Interaksi (engineered) \\
+2 & \texttt{smoker\_binary} & Tinggi        & Status merokok \\
+3 & \texttt{age / age\_sq} & Sedang         & Usia \\
+4 & \texttt{bmi / bmi\_sq} & Sedang         & BMI \\
+5 & \texttt{smoker\_age}   & Sedang-rendah  & Interaksi (engineered) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% ══════════════════════════════════════════════════════════
+\section{Perbandingan Hasil Model}
+
+\subsection{Tabel Perbandingan Komprehensif}
+
+\begin{table}[h!]
+\centering
+\caption{Perbandingan lengkap seluruh model dan split}
+\small
+\begin{tabular}{llrrrr}
+\toprule
+\textbf{Split} & \textbf{Model} & \textbf{Train R\textsuperscript{2}} & \textbf{Test R\textsuperscript{2}} & \textbf{Test MAE} & \textbf{Test RMSE} \\
+\midrule
+70/30 & Linear Regression & 0,8450 & 0,8361 & \$2.474 & \$4.902 \\
+70/30 & Random Forest     & 0,9620 & 0,8669 & \$2.097 & \$4.418 \\
+70/30 & XGBoost           & 0,9350 & 0,8711 & \$2.004 & \$4.346 \\
+70/30 & LightGBM          & 0,9410 & 0,8670 & \$2.072 & \$4.417 \\
+\midrule
+80/20 & Linear Regression & 0,8440 & 0,8436 & \$2.500 & \$4.928 \\
+80/20 & Random Forest     & 0,9590 & 0,8724 & \$2.046 & \$4.451 \\
+\textbf{80/20} & \textbf{XGBoost} & \textbf{0,9380} & \textbf{0,8802} & \textbf{\$1.912} & \textbf{\$4.313} \\
+80/20 & LightGBM          & 0,9430 & 0,8750 & \$2.026 & \$4.404 \\
+\midrule
+90/10 & Linear Regression & 0,8430 & 0,8372 & \$2.494 & \$4.740 \\
+90/10 & Random Forest     & 0,9580 & 0,8672 & \$1.983 & \$4.280 \\
+90/10 & XGBoost           & 0,9360 & 0,8710 & \$1.928 & \$4.219 \\
+90/10 & LightGBM          & 0,9420 & 0,8700 & \$2.010 & \$4.234 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Rangking Model}
+
+\begin{table}[h!]
+\centering
+\caption{Rangking model berdasarkan rata-rata Test R\textsuperscript{2}}
+\begin{tabular}{clrr}
+\toprule
+\textbf{Rank} & \textbf{Model} & \textbf{Avg Test R\textsuperscript{2}} & \textbf{Avg MAE} \\
+\midrule
+1 & \textbf{XGBoost}      & \textbf{0,8741} & \textbf{\$1.948} \\
+2 & LightGBM              & 0,8707          & \$2.036 \\
+3 & Random Forest          & 0,8688          & \$2.042 \\
+4 & Linear Regression      & 0,8390          & \$2.489 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analisis Perbandingan}
+\begin{enumerate}
+    \item \textbf{XGBoost secara konsisten unggul} di semua split dan metrik evaluasi
+    \item \textbf{Split 80/20 memberikan performa terbaik} — keseimbangan optimal antara data training yang cukup dan test set yang representatif
+    \item \textbf{Model tree-based mengungguli Linear Regression} sebesar ${\sim}$4 poin R\textsuperscript{2}
+    \item \textbf{Tidak terdeteksi overfitting yang parah} — perbedaan Train R\textsuperscript{2} dan Test R\textsuperscript{2} pada XGBoost (${\sim}$6\%) masih dalam batas wajar
+    \item \textbf{Linear Regression tetap memberikan baseline yang baik} (R\textsuperscript{2} $>$ 0,83) berkat feature engineering yang efektif
+\end{enumerate}
+
+
+% ══════════════════════════════════════════════════════════
+\section{Kesimpulan}
+
+\subsection{Rangkuman Hasil}
+Project ini berhasil membangun model prediksi biaya asuransi kesehatan dengan performa yang sangat baik:
+\begin{itemize}
+    \item \textbf{Model terbaik:} XGBoost Regressor dengan \textbf{R\textsuperscript{2} = 0,8802} (88,02\%)
+    \item \textbf{Rata-rata error prediksi:} \$1.912 (MAE) — prediksi model rata-rata hanya meleset sekitar \$1.900
+    \item \textbf{Feature engineering} terbukti krusial — fitur interaksi \texttt{smoker\_bmi} menjadi prediktor dominan
+    \item \textbf{Log-transform pada target} meningkatkan performa secara signifikan pada distribusi yang skewed
+\end{itemize}
+
+\subsection{Inference Testing dan Perilaku Model}
+Pengujian inferensi dilakukan terhadap model terbaik (XGBoost) dengan tiga kategori data:
+
+\begin{enumerate}
+    \item \textbf{Data normal unseen} — Profil pasien realistis menghasilkan prediksi yang wajar:
+    \begin{itemize}
+        \item Non-smoker rata-rata: ${\sim}$\$8.200
+        \item Smoker rata-rata: ${\sim}$\$34.750
+    \end{itemize}
+
+    \item \textbf{Edge cases} — Nilai ekstrem tetapi masih mungkin:
+    \begin{itemize}
+        \item Prediksi terendah: ${\sim}$\$1.820 (usia 18, BMI 15,96, non-smoker)
+        \item Prediksi tertinggi: ${\sim}$\$49.973 (usia 64, BMI 53,13, smoker, 5 anak)
+        \item Rasio max/min: 27,5$\times$
+    \end{itemize}
+
+    \item \textbf{Absurd entries} — Data yang tidak masuk akal (stress test):
+    \begin{itemize}
+        \item Model tetap memberikan prediksi dalam rentang wajar berkat sifat tree-based yang \textit{naturally bounded}
+        \item BMI negatif dan usia negatif \textbf{tidak menyebabkan crash}, tetapi menghasilkan prediksi yang tidak bermakna
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Sensitivity Analysis}
+Analisis sensitivitas menunjukkan perilaku model yang konsisten:
+\begin{itemize}
+    \item \textbf{Efek usia:} Biaya meningkat secara monoton seiring usia ($+$\$11.000 dari usia 18 ke 64)
+    \item \textbf{Efek BMI (non-smoker):} Relatif kecil ($\pm$\$800 pada rentang 15–80)
+    \item \textbf{Efek Smoker $\times$ BMI:} Efek multiplikatif yang sangat signifikan — rasio smoker/non-smoker meningkat dari 4,7$\times$ (BMI 20) menjadi 10,2$\times$ (BMI 40)
+\end{itemize}
+
+\subsection{Keterbatasan Model}
+\begin{itemize}
+    \item Dataset relatif kecil (1.338 baris) — hasil mungkin bervariasi pada data yang lebih besar
+    \item Data hanya mencakup wilayah Amerika Serikat — generalisasi ke sistem kesehatan lain perlu divalidasi
+    \item Status \texttt{smoker} bersifat biner — tidak menangkap tingkat konsumsi rokok atau durasi merokok
+    \item Tidak ada informasi temporal — model tidak dapat menangkap tren waktu
+    \item Model tidak memiliki \textbf{input validation} — menerima input absurd (usia negatif, BMI $>$ 100) tanpa peringatan
+    \item Prediksi untuk data yang jauh di luar distribusi training (\textit{out-of-distribution}) tidak reliable — model tree-based cenderung menghasilkan nilai yang ``terjebak'' di sekitar rentang training
+\end{itemize}
+
+\subsection{Rekomendasi Pengembangan}
+\begin{enumerate}
+    \item \textbf{Validasi dengan dataset lebih besar} untuk memastikan generalisasi model
+    \item \textbf{Cross-validation (k-fold)} dapat digunakan untuk evaluasi yang lebih robust pada dataset kecil
+    \item \textbf{Ensemble/Stacking} dari XGBoost + LightGBM berpotensi memberikan peningkatan marginal
+    \item \textbf{Input validation} perlu ditambahkan untuk deployment — menolak input dengan nilai negatif atau di luar rentang wajar
+    \item \textbf{Monitoring prediksi} secara berkala untuk mendeteksi pergeseran distribusi data (data drift)
+\end{enumerate}
+
+\end{document}
